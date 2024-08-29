@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  videoProgress VideoProgress[] // Relasi ke progres video
+
+  @@map("users")
+}
+
+model VideoProgress {
+  id          Int        @id @default(autoincrement())
+  userId      Int
+  videoTitle  String     // Judul video yang statis dan disimpan di frontend
+  playCount   Int        @default(0) // Berapa kali video ini telah diputar oleh user
+  status      VideoStatus @default(PENDING) // Status apakah user sudah paham atau belum
+  user        User       @relation(fields: [userId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@map("video_progress")
+  @@unique([userId, videoTitle]) // Setiap user hanya memiliki satu catatan per video berdasarkan judulnya
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum VideoStatus {
+  PENDING
+  UNDERSTOOD
+}
