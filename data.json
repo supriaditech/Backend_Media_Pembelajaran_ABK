@@ -1,0 +1,15 @@
+{
+"Materi":{
+    "id":1,
+    "nama_materi":"Toilet Training",
+    "descrption":"lorem ilsum",
+    "subMateri":[
+        {
+            "id":1,
+            "nama_sub_materi":"latihan 1",
+            "video_url":"http ytdsadakd",
+            "descrption":"ufpoyfkughghhdhjdscd"
+        }
+    ]
+}
+}
