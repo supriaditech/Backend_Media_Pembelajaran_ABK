@@ -7,7 +7,8 @@ import { AuthGuard } from 'src/auth/auth.guard';
 export class MateriController {
   constructor(private materiService: MateriService) {}
 
-  @Post('register')
+  @UseGuards(AuthGuard) // Pastikan hanya user yang terautentikasi bisa mengupdate
+  @Post('create')
   async createMateri(@Body() data: CreateMateriDto) {
     return await this.materiService.CreateAddMateri(data);
   }
