@@ -31,4 +31,23 @@ export class SubMateriProgressController {
   async getAllProgress() {
     return await this.subMateriProgressService.getAllProgress();
   }
+
+  @Post('user-sub-materi')
+  async getProgressByUserAndSubMateri(
+    @Body('userId') userId: number,
+    @Body('subMateriId') subMateriId: number,
+  ) {
+    return await this.subMateriProgressService.getProgressByUserAndSubMateri(
+      userId,
+      subMateriId,
+    );
+  }
+
+  // Endpoint untuk mendapatkan semua progress berdasarkan subMateriId
+  @Post('sub-materi')
+  async getProgressBySubMateri(@Body('subMateriId') subMateriId: number) {
+    return await this.subMateriProgressService.getProgressBySubMateri(
+      subMateriId,
+    );
+  }
 }

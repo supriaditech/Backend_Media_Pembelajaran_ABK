@@ -7,9 +7,10 @@ import { UserModule } from './user/user.module';
 import { MateriModule } from './materi/materi.module';
 import { SubMateriModule } from './sub-materi/sub-materi.module';
 import { SubMateriProgressModule } from './sub-materi-progress/sub-materi-progress.module';
+import { MateriProgressModule } from './materi-progress/materi-progress.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UserModule, MateriModule, SubMateriModule, SubMateriProgressModule],
+  imports: [PrismaModule, AuthModule, UserModule, MateriModule, SubMateriModule, SubMateriProgressModule, MateriProgressModule],
   controllers: [AppController],
   providers: [AppService],
 })

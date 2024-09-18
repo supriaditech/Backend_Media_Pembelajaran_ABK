@@ -131,4 +131,50 @@ export class SubMateriProgressService {
       HttpStatus.OK,
     );
   }
+
+  async getProgressByUserAndSubMateri(userId: number, subMateriId: number) {
+    const progress = await this.prisma.subMateriProgress.findFirst({
+      where: {
+        userId: userId,
+        subMateriId: subMateriId,
+      },
+      include: {
+        subMateri: true,
+      },
+    });
+
+    if (!progress) {
+      throw new HttpException(
+        buildResponse(null, 'Progress tidak ditemukan', HttpStatus.NOT_FOUND),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return buildResponse(progress, 'Progress berhasil diambil', HttpStatus.OK);
+  }
+
+  // Method untuk mendapatkan semua progress berdasarkan subMateriId
+  async getProgressBySubMateri(subMateriId: number) {
+    const progress = await this.prisma.subMateriProgress.findMany({
+      where: {
+        subMateriId: subMateriId,
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    if (progress.length === 0) {
+      throw new HttpException(
+        buildResponse(null, 'Progress tidak ditemukan', HttpStatus.NOT_FOUND),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return buildResponse(
+      progress,
+      'Semua Progress SubMateri berdasarkan subMateriId berhasil diambil',
+      HttpStatus.OK,
+    );
+  }
 }
