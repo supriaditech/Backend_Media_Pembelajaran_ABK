@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  materiProgress    MateriProgress[] // Relasi User dengan progres Materi
+  subMateriProgress SubMateriProgress[] // Relasi User dengan progres SubMateri
+
+  @@map("users")
+}
+
+model Materi {
+  id          Int         @id @default(autoincrement())
+  nama_materi String
+  description String
+  subMateri   SubMateri[] // Relasi Materi ke SubMateri
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  materiProgress MateriProgress[] // Relasi Materi dengan progres Materi
+
+  @@map("materi")
+}
+
+model SubMateri {
+  id              Int      @id @default(autoincrement())
+  nama_sub_materi String
+  video_url       String
+  description     String
+  materiId        Int // Foreign key to relate with the Materi
+  materi          Materi   @relation(fields: [materiId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  subMateriProgress SubMateriProgress[] // Relasi SubMateri dengan progres SubMateri
+
+  @@map("sub_materi")
+}
+
+model MateriProgress {
+  id        Int            @id @default(autoincrement())
+  userId    Int // Foreign key to relate with the User
+  user      User           @relation(fields: [userId], references: [id])
+  materiId  Int // Foreign key to relate with the Materi
+  materi    Materi         @relation(fields: [materiId], references: [id])
+  status    ProgressStatus @default(PENDING) // Status progres Materi
+  updatedAt DateTime       @updatedAt
+
+  @@map("materi_progress")
+}
+
+model SubMateriProgress {
+  id             Int            @id @default(autoincrement())
+  userId         Int // Foreign key to relate with the User
+  user           User           @relation(fields: [userId], references: [id])
+  subMateriId    Int // Foreign key to relate with the SubMateri
+  subMateri      SubMateri      @relation(fields: [subMateriId], references: [id])
+  status         ProgressStatus @default(PENDING) // Status progres SubMateri
+  videoPlayCount Int            @default(0) // Menyimpan jumlah kali video diputar
+  updatedAt      DateTime       @updatedAt
+
+  @@map("sub_materi_progress")
+}
+
+enum ProgressStatus {
+  PENDING
+  UNDERSTOOD
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum VideoStatus {
+  PENDING
+  UNDERSTOOD
+}
