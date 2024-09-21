@@ -31,7 +31,7 @@ model User {
 model Materi {
   id          Int         @id @default(autoincrement())
   nama_materi String
-  description String
+  description String  @db.Text
   subMateri   SubMateri[] // Relasi Materi ke SubMateri
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -45,7 +45,7 @@ model SubMateri {
   id              Int      @id @default(autoincrement())
   nama_sub_materi String
   video_url       String
-  description     String
+  description     String @db.Text
   materiId        Int // Foreign key to relate with the Materi
   materi          Materi   @relation(fields: [materiId], references: [id])
   createdAt       DateTime @default(now())

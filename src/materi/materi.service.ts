@@ -71,7 +71,11 @@ export class MateriService {
   }
 
   async getAllMateri() {
-    const materiList = await this.prisma.materi.findMany();
+    const materiList = await this.prisma.materi.findMany({
+      include: {
+        subMateri: true, // Menyertakan sub-materi yang terkait
+      },
+    });
 
     return buildResponse(materiList, 'Materi Berhasil Diambil', 200);
   }
