@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -47,7 +41,7 @@ model SubMateri {
   video_url       String
   description     String @db.Text
   materiId        Int // Foreign key to relate with the Materi
-  materi          Materi   @relation(fields: [materiId], references: [id])
+  materi          Materi   @relation(fields: [materiId], references: [id], onDelete: Cascade) // Cascade Delete di relasi SubMateri
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
