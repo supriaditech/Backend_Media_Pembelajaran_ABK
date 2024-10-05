@@ -71,7 +71,11 @@ export class MateriService {
   }
 
   async getAllMateri() {
-    const materiList = await this.prisma.materi.findMany();
+    const materiList = await this.prisma.materi.findMany({
+      include: {
+        subMateri: true, // Menyertakan sub-materi yang terkait
+      },
+    });
 
     return buildResponse(materiList, 'Materi Berhasil Diambil', 200);
   }
@@ -97,5 +101,30 @@ export class MateriService {
     });
 
     return buildResponse(null, 'Materi Berhasil Dihapus', HttpStatus.OK);
+  }
+
+  async getSubMateriByMateriId(materiId: number) {
+    // Cek apakah materi dengan ID tersebut ada
+    const existingMateri = await this.prisma.materi.findUnique({
+      where: { id: materiId },
+      include: {
+        subMateri: true, // Sertakan data SubMateri terkait, meskipun kosong
+      },
+    });
+
+    // Jika materi tidak ditemukan, lempar error
+    if (!existingMateri) {
+      throw new HttpException(
+        buildResponse(null, 'Materi not found', HttpStatus.NOT_FOUND),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    // Kembalikan data Materi beserta SubMateri (bisa kosong)
+    return buildResponse(
+      existingMateri,
+      'Materi beserta Sub Materi berhasil diambil',
+      200,
+    );
   }
 }

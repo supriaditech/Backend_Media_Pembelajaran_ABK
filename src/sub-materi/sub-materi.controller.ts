@@ -1,4 +1,11 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpException,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { SubMateriDto } from './dto/SubMateriDto';
 import { SubMateriService } from './sub-materi.service';
@@ -36,5 +43,20 @@ export class SubMateriController {
   @Post('delete') // Route untuk get SubMateri berdasarkan materiId
   async deleteSubMateri(@Body('id') id: number) {
     return await this.subMateriService.deleteSubMateri(id);
+  }
+
+  @UseGuards(AuthGuard) // Jika hanya user yang terautentikasi yang boleh mengakses
+  @Post('get-submateri-by-id')
+  async getSubMateriBySubMateriId(@Body('submateriId') materiId: number) {
+    try {
+      const result =
+        await this.subMateriService.getSubMateriBySubMateriId(materiId);
+      return result;
+    } catch (error) {
+      throw new HttpException(
+        error.response || 'Internal Server Error',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

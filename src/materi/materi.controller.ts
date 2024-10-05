@@ -1,4 +1,11 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpException,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { MateriService } from './materi.service';
 import { CreateMateriDto } from './dto/CreateMateriDto';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -29,5 +36,19 @@ export class MateriController {
   @Post('delete') // Menggunakan DELETE dan mengambil id dari parameter URL
   async deleteMateri(@Body('id') id: number) {
     return await this.materiService.deleteMateri(id);
+  }
+
+  @UseGuards(AuthGuard) // Jika hanya user yang terautentikasi yang boleh mengakses
+  @Post('get-materi-submateri')
+  async getSubMateriByMateriId(@Body('materiId') materiId: number) {
+    try {
+      const result = await this.materiService.getSubMateriByMateriId(materiId);
+      return result;
+    } catch (error) {
+      throw new HttpException(
+        error.response || 'Internal Server Error',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

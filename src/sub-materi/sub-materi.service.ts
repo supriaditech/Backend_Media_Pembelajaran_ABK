@@ -96,6 +96,9 @@ export class SubMateriService {
     // Cari SubMateri berdasarkan materiId
     const subMateri = await this.prisma.subMateri.findMany({
       where: { materiId },
+      include: {
+        materi: true,
+      },
     });
 
     return buildResponse(subMateri, 'Sub Materi Berhasil Diambil', 200);
@@ -124,6 +127,28 @@ export class SubMateriService {
       updatedSubMateri,
       'SubMateri Berhasil dihapus',
       HttpStatus.OK,
+    );
+  }
+
+  async getSubMateriBySubMateriId(subMateriId: number) {
+    // Cek apakah materi dengan ID tersebut ada
+    const existingMateri = await this.prisma.subMateri.findUnique({
+      where: { id: subMateriId },
+    });
+
+    // Jika materi tidak ditemukan, lempar error
+    if (!existingMateri) {
+      throw new HttpException(
+        buildResponse(null, 'Submateri not found', HttpStatus.NOT_FOUND),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    // Kembalikan data Submateri beserta SubSubmateri (bisa kosong)
+    return buildResponse(
+      existingMateri,
+      'Submateri beserta Sub Materi berhasil diambil',
+      200,
     );
   }
 }
