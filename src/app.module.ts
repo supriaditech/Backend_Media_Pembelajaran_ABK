@@ -8,9 +8,23 @@ import { MateriModule } from './materi/materi.module';
 import { SubMateriModule } from './sub-materi/sub-materi.module';
 import { SubMateriProgressModule } from './sub-materi-progress/sub-materi-progress.module';
 import { MateriProgressModule } from './materi-progress/materi-progress.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UserModule, MateriModule, SubMateriModule, SubMateriProgressModule, MateriProgressModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    UserModule,
+    MateriModule,
+    SubMateriModule,
+    SubMateriProgressModule,
+    MateriProgressModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'src/uploads'), // Ganti ini dengan `process.cwd()` untuk mengarah ke root proyek
+      serveRoot: '/src/uploads/', // URL root untuk akses
+    }),
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -9,9 +9,10 @@ export class SubMateriService {
   constructor(private prisma: PrismaService) {}
 
   async CreateSubMateri(data: SubMateriDto) {
+    const idMateri = Number(data.materiId);
     // Cek apakah materi dengan ID yang diberikan ada di database
     const existingMateri = await this.prisma.materi.findUnique({
-      where: { id: data.materiId },
+      where: { id: idMateri },
     });
 
     // Jika tidak ditemukan, lempar error
@@ -28,7 +29,7 @@ export class SubMateriService {
         nama_sub_materi: data.nama_sub_materi,
         video_url: data.video_url,
         description: data.description,
-        materiId: data.materiId, // Relasi ke Materi
+        materiId: idMateri, // Relasi ke Materi
       },
     });
 
@@ -61,7 +62,7 @@ export class SubMateriService {
           data.nama_sub_materi ?? existingSubMateri.nama_sub_materi,
         video_url: data.video_url ?? existingSubMateri.video_url,
         description: data.description ?? existingSubMateri.description,
-        materiId: data.materiId ?? existingSubMateri.materiId, // Jika materiId diubah
+        materiId: data.materiId ?? Number(existingSubMateri.materiId), // Jika materiId diubah
       },
     });
 
