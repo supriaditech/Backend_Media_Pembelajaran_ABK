@@ -4,20 +4,64 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { SubMateriDto } from './dto/SubMateriDto';
 import { SubMateriService } from './sub-materi.service';
 import { UpdateSubMateriDto } from './dto/UpdateSubMateriDto';
-
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import * as path from 'path'; // Pastikan ini diimpor dengan benar
+import * as fs from 'fs';
+import { buildResponse } from 'helper/buildResponse';
 @Controller('sub-materi')
 export class SubMateriController {
   constructor(private subMateriService: SubMateriService) {}
 
-  @UseGuards(AuthGuard) // Pastikan hanya user yang terautentikasi bisa mengupdate
+  @UseGuards(AuthGuard)
+  @UseInterceptors(
+    FileInterceptor('video', {
+      storage: diskStorage({
+        destination: (req, file, cb) => {
+          const dir = path.join(
+            process.cwd(),
+
+            'src',
+            'uploads',
+            'videomateri',
+          ); // Menggunakan path absolut
+          console.log(`Saving file to: ${dir}`);
+
+          console.log(dir);
+          // Membuat direktori jika belum ada
+          fs.mkdirSync(dir, { recursive: true });
+          cb(null, dir);
+        },
+        filename: (req, file, cb) => {
+          const newFilename = `video-materi-${file.originalname}`;
+          cb(null, newFilename);
+        },
+      }),
+    }),
+  )
   @Post('create')
-  async createSubMateri(@Body() data: SubMateriDto) {
+  async createSubMateri(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() data: any,
+  ) {
+    console.log('file', file);
+    console.log('data', data); // Tambahkan log untuk memeriksa data
+
+    if (file) {
+      const newFilename = `src/uploads/videoMateri/video-materi-${file.originalname}`;
+      const video_url = newFilename;
+      data.video_url = video_url; // Pastikan video_url diisi
+    } else {
+      return buildResponse(null, 'File is required', HttpStatus.BAD_REQUEST);
+    }
+
     return await this.subMateriService.CreateSubMateri(data);
   }
 
