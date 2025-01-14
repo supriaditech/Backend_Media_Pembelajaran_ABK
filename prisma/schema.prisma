@@ -25,7 +25,8 @@ model User {
 model Materi {
   id          Int         @id @default(autoincrement())
   nama_materi String
-  description String  @db.Text
+  description String      @db.Text
+  thumbnail   String
   subMateri   SubMateri[] // Relasi Materi ke SubMateri
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -39,7 +40,8 @@ model SubMateri {
   id              Int      @id @default(autoincrement())
   nama_sub_materi String
   video_url       String
-  description     String @db.Text
+  description     String   @db.Text
+  thumbnail       String
   materiId        Int // Foreign key to relate with the Materi
   materi          Materi   @relation(fields: [materiId], references: [id], onDelete: Cascade) // Cascade Delete di relasi SubMateri
   createdAt       DateTime @default(now())

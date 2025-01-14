@@ -12,4 +12,8 @@ export class CreateMateriDto {
   @IsString()
   @IsNotEmpty()
   description: string;
+
+  @IsString()
+  @IsNotEmpty()
+  thumbnail: string;
 }

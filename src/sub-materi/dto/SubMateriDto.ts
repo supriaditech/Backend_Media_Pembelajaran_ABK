@@ -16,4 +16,8 @@ export class SubMateriDto {
   @IsNumber()
   @IsNotEmpty()
   materiId: number;
+
+  @IsString()
+  @IsNotEmpty()
+  thumbnail: string;
 }

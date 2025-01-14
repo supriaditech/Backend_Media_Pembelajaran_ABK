@@ -2,12 +2,27 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { buildResponse } from 'helper/buildResponse';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateMateriDto } from './dto/CreateMateriDto';
+import * as path from 'path';
+import * as fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
+const allowedMimeTypes = ['image/jpeg', 'image/png'];
 
 @Injectable()
 export class MateriService {
   constructor(private prisma: PrismaService) {}
 
-  async CreateAddMateri(data: CreateMateriDto) {
+  async CreateAddMateri(data: CreateMateriDto, file: Express.Multer.File) {
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      throw new HttpException(
+        buildResponse(
+          null,
+          'Hanya format gambar (jpeg dan png) yang diizinkan!',
+          HttpStatus.BAD_REQUEST,
+        ),
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     // Jika id tidak disediakan, lewati pengecekan berdasarkan id
     if (data.id) {
       const existingMateri = await this.prisma.materi.findUnique({
@@ -26,12 +41,31 @@ export class MateriService {
         );
       }
     }
+    const uploadDir = path.join(
+      process.cwd(),
+      'src',
+      'uploads',
+      'thumbnail-materi',
+    );
+
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true }); // Buat folder jika belum ada
+    }
+    const uniqueSuffix = uuidv4(); // Membuat UUID
+    const fileExtension = path.extname(file.originalname); // Mendapatkan ekstensi file
+    const newFilename = `${uniqueSuffix}${fileExtension}`;
+    const filePath = path.join(uploadDir, newFilename);
+
+    fs.writeFileSync(filePath, file.buffer);
+
+    const photoUrl = `src/uploads/thumbnail-materi/${newFilename}`;
 
     // Jika tidak ada konflik ID, buat materi baru
     const createMateri = await this.prisma.materi.create({
       data: {
         nama_materi: data.nama_materi,
         description: data.description,
+        thumbnail: photoUrl,
         // Tambahkan data lain yang dibutuhkan
       },
     });

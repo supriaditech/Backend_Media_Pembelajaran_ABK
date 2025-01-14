@@ -35,3 +35,5 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 /src/uploads/videoMateri/*
+/src/uploads/thumbnail-materi/*
+/src/uploads/thumbnail-suubmateri/*

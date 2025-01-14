@@ -3,19 +3,51 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { SubMateriDto } from './dto/SubMateriDto';
 import { buildResponse } from 'helper/buildResponse';
 import { UpdateSubMateriDto } from './dto/UpdateSubMateriDto';
+import * as path from 'path';
+import * as fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class SubMateriService {
   constructor(private prisma: PrismaService) {}
 
-  async CreateSubMateri(data: SubMateriDto) {
+  async CreateSubMateri(
+    data: SubMateriDto,
+    videoFile: Express.Multer.File,
+    thumbnailFile: Express.Multer.File,
+  ) {
+    const allowedVideoMimeTypes = ['video/mp4', 'video/x-matroska'];
+    const allowedThumbnailMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
+
+    // Validasi tipe file video
+    if (!allowedVideoMimeTypes.includes(videoFile.mimetype)) {
+      throw new HttpException(
+        buildResponse(
+          null,
+          'Hanya format Video (mp4 dan mkv) yang diizinkan!',
+          HttpStatus.BAD_REQUEST,
+        ),
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // Validasi tipe file thumbnail
+    if (!allowedThumbnailMimeTypes.includes(thumbnailFile.mimetype)) {
+      throw new HttpException(
+        buildResponse(
+          null,
+          'Hanya format gambar yang diizinkan untuk thumbnail!',
+          HttpStatus.BAD_REQUEST,
+        ),
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const idMateri = Number(data.materiId);
-    // Cek apakah materi dengan ID yang diberikan ada di database
     const existingMateri = await this.prisma.materi.findUnique({
       where: { id: idMateri },
     });
 
-    // Jika tidak ditemukan, lempar error
     if (!existingMateri) {
       throw new HttpException(
         buildResponse(null, 'Materi not found', HttpStatus.NOT_FOUND),
@@ -23,13 +55,48 @@ export class SubMateriService {
       );
     }
 
-    // Jika materi ditemukan, buat SubMateri baru
+    // Simpan video
+    const videoUploadDir = path.join(
+      process.cwd(),
+      'src',
+      'uploads',
+      'videomateri',
+    );
+    if (!fs.existsSync(videoUploadDir)) {
+      fs.mkdirSync(videoUploadDir, { recursive: true });
+    }
+    const videoUniqueSuffix = uuidv4();
+    const videoExtension = path.extname(videoFile.originalname);
+    const videoFilename = `${videoUniqueSuffix}${videoExtension}`;
+    const videoFilePath = path.join(videoUploadDir, videoFilename);
+    fs.writeFileSync(videoFilePath, videoFile.buffer);
+    const videoUrl = `src/uploads/videomateri/${videoFilename}`;
+
+    // Simpan thumbnail
+    const thumbnailUploadDir = path.join(
+      process.cwd(),
+      'src',
+      'uploads',
+      'thumbnail-submateri',
+    );
+    if (!fs.existsSync(thumbnailUploadDir)) {
+      fs.mkdirSync(thumbnailUploadDir, { recursive: true });
+    }
+    const thumbnailUniqueSuffix = uuidv4();
+    const thumbnailExtension = path.extname(thumbnailFile.originalname);
+    const thumbnailFilename = `${thumbnailUniqueSuffix}${thumbnailExtension}`;
+    const thumbnailFilePath = path.join(thumbnailUploadDir, thumbnailFilename);
+    fs.writeFileSync(thumbnailFilePath, thumbnailFile.buffer);
+    const thumbnailUrl = `src/uploads/thumbnail-submateri/${thumbnailFilename}`;
+
+    // Buat SubMateri baru
     const createSubMateri = await this.prisma.subMateri.create({
       data: {
         nama_sub_materi: data.nama_sub_materi,
-        video_url: data.video_url,
+        video_url: videoUrl,
         description: data.description,
-        materiId: idMateri, // Relasi ke Materi
+        materiId: idMateri,
+        thumbnail: thumbnailUrl,
       },
     });
 

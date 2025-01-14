@@ -12,9 +12,7 @@ async function bootstrap() {
       transform: true, // Aktifkan transformasi otomatis
     }),
   );
-  console.log('Current directory:', __dirname);
-  const part = path.join(__dirname, '..', 'uploads');
-  console.log('=========', part);
+
   app.useStaticAssets(path.join(__dirname, '..', 'uploads'), {
     prefix: '/uploads/', // Menyajikan file di bawah /uploads/
   });

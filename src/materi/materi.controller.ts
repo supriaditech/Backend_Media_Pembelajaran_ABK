@@ -4,20 +4,31 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { MateriService } from './materi.service';
 import { CreateMateriDto } from './dto/CreateMateriDto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { buildResponse } from 'helper/buildResponse';
 
 @Controller('materi')
 export class MateriController {
   constructor(private materiService: MateriService) {}
 
-  @UseGuards(AuthGuard) // Pastikan hanya user yang terautentikasi bisa mengupdate
+  @UseGuards(AuthGuard)
   @Post('create')
-  async createMateri(@Body() data: CreateMateriDto) {
-    return await this.materiService.CreateAddMateri(data);
+  @UseInterceptors(FileInterceptor('thumbnail'))
+  async createMateri(
+    @Body() data: any,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      return buildResponse(null, 'File is required', HttpStatus.BAD_REQUEST);
+    }
+    return await this.materiService.CreateAddMateri(data, file);
   }
 
   @UseGuards(AuthGuard) // Pastikan hanya user yang terautentikasi bisa mengupdate

@@ -4,65 +4,57 @@ import {
   HttpException,
   HttpStatus,
   Post,
-  UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { SubMateriService } from './sub-materi.service';
 import { UpdateSubMateriDto } from './dto/UpdateSubMateriDto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import * as path from 'path'; // Pastikan ini diimpor dengan benar
-import * as fs from 'fs';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+
 import { buildResponse } from 'helper/buildResponse';
 @Controller('sub-materi')
 export class SubMateriController {
   constructor(private subMateriService: SubMateriService) {}
 
   @UseGuards(AuthGuard)
-  @UseInterceptors(
-    FileInterceptor('video', {
-      storage: diskStorage({
-        destination: (req, file, cb) => {
-          const dir = path.join(
-            process.cwd(),
-
-            'src',
-            'uploads',
-            'videomateri',
-          ); // Menggunakan path absolut
-          console.log(`Saving file to: ${dir}`);
-
-          console.log(dir);
-          // Membuat direktori jika belum ada
-          fs.mkdirSync(dir, { recursive: true });
-          cb(null, dir);
-        },
-        filename: (req, file, cb) => {
-          const newFilename = `video-materi-${file.originalname}`;
-          cb(null, newFilename);
-        },
-      }),
-    }),
-  )
   @Post('create')
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'video', maxCount: 1 },
+      { name: 'thumbnail', maxCount: 1 },
+    ]),
+  )
   async createSubMateri(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles()
+    files: { video?: Express.Multer.File[]; thumbnail?: Express.Multer.File[] },
     @Body() data: any,
   ) {
-    console.log('file', file);
-    console.log('data', data); // Tambahkan log untuk memeriksa data
+    const videoFile = files.video ? files.video[0] : null;
+    const thumbnailFile = files.thumbnail ? files.thumbnail[0] : null;
 
-    if (file) {
-      const newFilename = `src/uploads/videoMateri/video-materi-${file.originalname}`;
-      const video_url = newFilename;
-      data.video_url = video_url; // Pastikan video_url diisi
-    } else {
-      return buildResponse(null, 'File is required', HttpStatus.BAD_REQUEST);
+    if (!videoFile) {
+      return buildResponse(
+        null,
+        'Video file is required',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
-    return await this.subMateriService.CreateSubMateri(data);
+    if (!thumbnailFile) {
+      return buildResponse(
+        null,
+        'Thumbnail file is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return await this.subMateriService.CreateSubMateri(
+      data,
+      videoFile,
+      thumbnailFile,
+    );
   }
 
   @UseGuards(AuthGuard) // Jika ingin autentikasi
