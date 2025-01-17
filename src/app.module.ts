@@ -10,6 +10,7 @@ import { SubMateriProgressModule } from './sub-materi-progress/sub-materi-progre
 import { MateriProgressModule } from './materi-progress/materi-progress.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { StudentAiRequestModule } from './student-ai-request/student-ai-request.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { join } from 'path';
       rootPath: join(process.cwd(), 'src/uploads'), // Ganti ini dengan `process.cwd()` untuk mengarah ke root proyek
       serveRoot: '/src/uploads/', // URL root untuk akses
     }),
+    StudentAiRequestModule,
   ],
   controllers: [AppController],
   providers: [AppService],
