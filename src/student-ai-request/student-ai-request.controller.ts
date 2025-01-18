@@ -12,4 +12,8 @@ export class StudentAiRequestController {
   async getRequestAiStudentController(@Body() data: StudentAiRequestDto) {
     return await this.studentAiRequestService.getRequestAiStudent(data);
   }
+  @Post('get-respone-question')
+  async getRequestQuestionController(@Body() data: any) {
+    return await this.studentAiRequestService.getRequestQuestion(data);
+  }
 }

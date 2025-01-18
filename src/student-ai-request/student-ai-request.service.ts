@@ -48,7 +48,86 @@ export class StudentAiRequestService {
       );
       // Simpan respon ke database
     } catch (error) {
+      throw new HttpException(
+        buildResponse(
+          null,
+          'Failed to get response from AI',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        ),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getRequestQuestion(prompt: string) {
+    // Pastikan prompt adalah string
+    if (typeof prompt !== 'string') {
+      prompt = JSON.stringify(prompt);
+    }
+
+    const promptString = `${prompt}. `;
+
+    try {
+      const response = await axios.post(
+        'https://api.openai.com/v1/chat/completions',
+        {
+          model: 'gpt-3.5-turbo',
+          messages: [
+            {
+              role: 'user',
+              content: promptString,
+            },
+          ],
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.OpenAI_Token}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      const aiResponse = response.data.choices[0].message.content;
+
+      // Cek apakah respons adalah string yang valid
+      let parsedResponse;
+      try {
+        // Jika respons dalam format JSON, parse
+        parsedResponse = JSON.parse(aiResponse);
+      } catch (e) {
+        // Jika tidak bisa diparse, anggap sebagai string biasa
+        console.warn(
+          'Failed to parse AI response, returning as plain text:',
+          aiResponse,
+        );
+        parsedResponse = { indonesia: aiResponse }; // Simpan sebagai string biasa
+      }
+
+      // Validasi struktur JSON
+      if (!parsedResponse.indonesia) {
+        throw new HttpException(
+          buildResponse(
+            null,
+            'Invalid response format from AI',
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          ),
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      // Jika ada versi bahasa Arab, tambahkan ke respons
+      const responseData = {
+        arab: parsedResponse.arab || null, // Jika ada, jika tidak null
+        indonesia: parsedResponse.indonesia,
+      };
+
+      return buildResponse(responseData, 'Request successful', HttpStatus.OK);
+    } catch (error) {
       console.error('Error while calling OpenAI API:', error);
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+      }
       throw new HttpException(
         buildResponse(
           null,
