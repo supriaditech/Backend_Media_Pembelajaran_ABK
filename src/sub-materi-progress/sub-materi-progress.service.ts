@@ -54,8 +54,8 @@ export class SubMateriProgressService {
       );
     } else {
       // Jika progress sudah ada, perbarui videoPlayCount dan status
-      const newStatus = data.status ? 'UNDERSTOOD' : 'PENDING';
-
+      const newStatus = data.status; // Directly use the status from the input data
+      console.log(newStatus);
       const updatedProgress = await this.prisma.subMateriProgress.update({
         where: { id: existingProgress.id },
         data: {
@@ -75,6 +75,9 @@ export class SubMateriProgressService {
   // Method untuk mendapatkan progress sub materi berdasarkan userId dan materiId
   async getProgressByUserAndMateri(userId: number, materiId: number) {
     // Cek apakah materi dan user valid
+    if (!userId) {
+      throw new Error('userId tidak boleh null');
+    }
     const existingMateri = await this.prisma.materi.findUnique({
       where: { id: materiId },
     });

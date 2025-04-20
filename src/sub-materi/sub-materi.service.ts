@@ -199,23 +199,39 @@ export class SubMateriService {
   }
 
   async getSubMateriBySubMateriId(subMateriId: number) {
-    // Cek apakah materi dengan ID tersebut ada
-    const existingMateri = await this.prisma.subMateri.findUnique({
+    // Cek apakah submateri dengan ID tersebut ada
+    const existingSubMateri = await this.prisma.subMateri.findUnique({
       where: { id: subMateriId },
     });
 
-    // Jika materi tidak ditemukan, lempar error
-    if (!existingMateri) {
+    // Jika submateri tidak ditemukan, lempar error
+    if (!existingSubMateri) {
       throw new HttpException(
         buildResponse(null, 'Submateri not found', HttpStatus.NOT_FOUND),
         HttpStatus.NOT_FOUND,
       );
     }
 
-    // Kembalikan data Submateri beserta SubSubmateri (bisa kosong)
+    // Cari submateri berikutnya berdasarkan ID
+    const nextSubMateri = await this.prisma.subMateri.findFirst({
+      where: {
+        id: { gt: subMateriId }, // Mencari submateri dengan ID yang lebih besar dari subMateriId saat ini
+      },
+      select: {
+        id: true, // Ambil hanya ID dari submateri berikutnya
+      },
+      orderBy: {
+        id: 'asc', // Urutkan berdasarkan ID (terkecil ke terbesar)
+      },
+    });
+
+    // Kembalikan data Submateri, serta nextSubMateriId jika ada
     return buildResponse(
-      existingMateri,
-      'Submateri beserta Sub Materi berhasil diambil',
+      {
+        ...existingSubMateri,
+        nextSubMateriId: nextSubMateri ? nextSubMateri.id : null, // Jika ada submateri berikutnya, beri ID berikutnya
+      },
+      'Submateri berhasil diambil',
       200,
     );
   }
