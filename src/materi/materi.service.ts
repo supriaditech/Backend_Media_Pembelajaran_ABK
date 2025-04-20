@@ -154,9 +154,25 @@ export class MateriService {
       );
     }
 
-    // Kembalikan data Materi beserta SubMateri (bisa kosong)
+    // Cari materi berikutnya berdasarkan ID
+    const nextMateri = await this.prisma.materi.findFirst({
+      where: {
+        id: { gt: materiId }, // Mencari materi dengan ID yang lebih besar dari materiId saat ini
+      },
+      select: {
+        id: true, // Ambil hanya ID dari materi berikutnya
+      },
+      orderBy: {
+        id: 'asc', // Urutkan berdasarkan ID (terkecil ke terbesar)
+      },
+    });
+
+    // Kembalikan data Materi beserta SubMateri, serta nextId jika ada
     return buildResponse(
-      existingMateri,
+      {
+        ...existingMateri,
+        nextId: nextMateri ? nextMateri.id : null, // Jika ada materi berikutnya, beri ID berikutnya
+      },
       'Materi beserta Sub Materi berhasil diambil',
       200,
     );

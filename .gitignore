@@ -37,3 +37,5 @@ lerna-debug.log*
 /src/uploads/videoMateri/*
 /src/uploads/thumbnail-materi/*
 /src/uploads/thumbnail-suubmateri/*
+
+/.env
