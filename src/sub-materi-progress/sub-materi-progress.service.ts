@@ -180,4 +180,32 @@ export class SubMateriProgressService {
       HttpStatus.OK,
     );
   }
+
+  async deleteSubMateriProgress(subMateriProgressId: number) {
+    const existingSubMateriProgress =
+      await this.prisma.subMateriProgress.findUnique({
+        where: { id: subMateriProgressId },
+      });
+    if (!existingSubMateriProgress) {
+      throw new HttpException(
+        buildResponse(
+          null,
+          'SubMateriProgress not found',
+          HttpStatus.NOT_FOUND,
+        ),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const deletedSubMateriProgress = await this.prisma.subMateriProgress.delete(
+      {
+        where: { id: subMateriProgressId },
+      },
+    );
+    return buildResponse(
+      deletedSubMateriProgress,
+      'SubMateriProgress Berhasil dihapus',
+      HttpStatus.OK,
+    );
+  }
 }
