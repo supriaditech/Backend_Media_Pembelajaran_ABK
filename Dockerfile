@@ -1,9 +1,7 @@
 # ---- Tahap 1: Build ----
 # Menggunakan Node.js versi 22 sesuai dengan lingkungan lokal Anda
-FROM node:22-alpine AS builder
+FROM node:22-slim AS builder 
 
-# TAMBAHKAN KEMBALI BARIS INI
-RUN apk add --no-cache openssl1.1-compat
 # Set direktori kerja di dalam container
 WORKDIR /usr/src/app
 
@@ -25,7 +23,7 @@ RUN yarn build
 
 # ---- Tahap 2: Produksi ----
 # Menggunakan base image yang sama untuk production
-FROM node:22-alpine
+FROM node:22-slim 
 
 WORKDIR /usr/src/app
 
