@@ -2,6 +2,7 @@
 # Menggunakan Node.js versi 22 sesuai dengan lingkungan lokal Anda
 FROM node:22-alpine AS builder
 
+RUN apk add --no-cache openssl1.1-compat
 # Set direktori kerja di dalam container
 WORKDIR /usr/src/app
 
