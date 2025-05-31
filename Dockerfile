@@ -33,4 +33,4 @@ COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY --from=builder /usr/src/app/dist ./dist
 
 # Perintah untuk menjalankan aplikasi saat container dimulai
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
