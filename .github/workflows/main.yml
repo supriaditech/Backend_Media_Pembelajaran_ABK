@@ -24,6 +24,10 @@ jobs:
           push: true
           tags: supriaditech/modiminds-app:latest
 
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          OpenAI_Token: ${{ secrets.OpenAI_Token }}
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
