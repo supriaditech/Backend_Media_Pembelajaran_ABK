@@ -1,36 +1,45 @@
 # ---- Tahap 1: Build ----
-# Menggunakan Node.js versi 22 sesuai dengan lingkungan lokal Anda
-FROM node:22-slim AS builder 
+    FROM node:22-slim AS builder
 
-# Set direktori kerja di dalam container
-WORKDIR /usr/src/app
-
-# Salin package.json dan package-lock.json
-COPY package*.json ./
-# Jika Anda punya yarn.lock, copy juga untuk instalasi yang konsisten
-COPY yarn.lock ./
-
-# Install dependencies
-RUN yarn install
-
-COPY ./prisma ./prisma/
-RUN npx prisma generate
-# Salin semua sisa source code
-COPY . .
-
-# Build aplikasi untuk production
-RUN yarn build
-
-# ---- Tahap 2: Produksi ----
-# Menggunakan base image yang sama untuk production
-FROM node:22-slim 
-
-WORKDIR /usr/src/app
-
-# Salin dependencies dari tahap 'builder'
-COPY --from=builder /usr/src/app/node_modules ./node_modules
-# Salin hasil build dari tahap 'builder'
-COPY --from=builder /usr/src/app/dist ./dist
-
-# Perintah untuk menjalankan aplikasi saat container dimulai
-CMD ["node", "dist/src/main"]
+    # Set environment variable untuk kompatibilitas OpenSSL 3.0
+    ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-3.0.x
+    
+    # Set direktori kerja di dalam container
+    WORKDIR /usr/src/app
+    
+    # Salin package.json dan lock files
+    COPY package*.json ./
+    COPY yarn.lock ./
+    
+    # Install dependencies termasuk devDependencies (diperlukan untuk build)
+    RUN yarn install --frozen-lockfile
+    
+    # Salin schema Prisma dan generate client
+    COPY ./prisma ./prisma/
+    RUN npx prisma generate
+    
+    # Salin semua source code
+    COPY . .
+    
+    # Build aplikasi NestJS untuk production
+    RUN yarn build
+    
+    # ---- Tahap 2: Produksi ----
+    FROM node:22-slim
+    
+    # Set environment variable untuk runtime kompatibilitas OpenSSL 3.0
+    ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-3.0.x
+    ENV NODE_ENV=production
+    
+    WORKDIR /usr/src/app
+    
+    # Salin hanya yang diperlukan untuk production
+    COPY --from=builder /usr/src/app/node_modules ./node_modules
+    COPY --from=builder /usr/src/app/dist ./dist
+    COPY --from=builder /usr/src/app/package.json ./
+    
+    # Jika menggunakan Prisma migrations di runtime, salin juga:
+    COPY --from=builder /usr/src/app/prisma ./prisma
+    
+    # Perintah untuk menjalankan aplikasi NestJS
+    CMD ["node", "dist/src/main"]
