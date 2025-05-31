@@ -9,13 +9,13 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN yarn install
 
 # Salin semua sisa source code
 COPY . .
 
 # Build aplikasi untuk production
-RUN npm run build
+RUN yarn build
 
 # ---- Tahap 2: Produksi ----
 # Menggunakan base image yang sama untuk production
