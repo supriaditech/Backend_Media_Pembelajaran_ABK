@@ -7,10 +7,13 @@ WORKDIR /usr/src/app
 
 # Salin package.json dan package-lock.json
 COPY package*.json ./
+# Jika Anda punya yarn.lock, copy juga untuk instalasi yang konsisten
+COPY yarn.lock ./
 
 # Install dependencies
 RUN yarn install
 
+COPY ./prisma ./prisma/
 RUN npx prisma generate
 # Salin semua sisa source code
 COPY . .
