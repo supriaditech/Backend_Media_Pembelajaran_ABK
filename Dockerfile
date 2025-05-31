@@ -11,6 +11,7 @@ COPY package*.json ./
 # Install dependencies
 RUN yarn install
 
+RUN npx prisma generate
 # Salin semua sisa source code
 COPY . .
 
