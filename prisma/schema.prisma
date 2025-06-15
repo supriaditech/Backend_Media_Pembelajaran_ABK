@@ -72,7 +72,7 @@ model SubMateriProgress {
   subMateriId    Int // Foreign key to relate with the SubMateri
   subMateri      SubMateri      @relation(fields: [subMateriId], references: [id], onDelete: Cascade)
   status         ProgressStatus @default(PENDING) // Status progres SubMateri
-  videoPlayCount Int            @default(0) // Menyimpan jumlah kali video diputar
+  videoPlayCount Int            @default(0)
   updatedAt      DateTime       @updatedAt
 
   @@map("sub_materi_progress")
