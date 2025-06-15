@@ -58,7 +58,7 @@ model MateriProgress {
   userId    Int // Foreign key to relate with the User
   user      User           @relation(fields: [userId], references: [id])
   materiId  Int // Foreign key to relate with the Materi
-  materi    Materi         @relation(fields: [materiId], references: [id])
+  materi    Materi         @relation(fields: [materiId], references: [id], onDelete: Cascade)
   status    ProgressStatus @default(PENDING) // Status progres Materi
   updatedAt DateTime       @updatedAt
 
@@ -70,7 +70,7 @@ model SubMateriProgress {
   userId         Int // Foreign key to relate with the User
   user           User           @relation(fields: [userId], references: [id])
   subMateriId    Int // Foreign key to relate with the SubMateri
-  subMateri      SubMateri      @relation(fields: [subMateriId], references: [id])
+  subMateri      SubMateri      @relation(fields: [subMateriId], references: [id], onDelete: Cascade)
   status         ProgressStatus @default(PENDING) // Status progres SubMateri
   videoPlayCount Int            @default(0) // Menyimpan jumlah kali video diputar
   updatedAt      DateTime       @updatedAt
