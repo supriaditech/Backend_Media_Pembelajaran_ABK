@@ -20,7 +20,6 @@
     # Hapus cache Prisma lama dan generate baru
     RUN rm -rf node_modules/.prisma node_modules/.cache
     RUN npx prisma generate
-    RUN npx prisma migrate deploy
     
     COPY . .
     

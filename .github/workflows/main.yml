@@ -40,6 +40,24 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd ~/modimind-app
+
+            # --- 1. Pastikan .env dengan DATABASE_URL ada di sini ---
+            # Jika .env file kamu berisi DATABASE_URL, pastikan sudah ada di ~/modimind-app.
+            # Atau kamu bisa pass DATABASE_URL langsung sebagai env var ke perintah docker-compose run.
+
+            echo "Running Prisma Migrations..."
+            # --- 2. Menjalankan migrasi database di dalam kontainer service aplikasi ---
+            # Asumsi nama service aplikasi kamu di docker-compose.yml adalah 'modimind-app-container'
+            # Dan `npx prisma` sudah tersedia di dalam image kontainer tersebut (karena `prisma generate` saat build)
+            docker-compose run --rm \
+              -e DATABASE_URL="${{ secrets.DATABASE_URL }}" \ # Pass DATABASE_URL langsung ke kontainer ini
+              modimind-app-container \
+              npx prisma migrate deploy
+
+            echo "Prisma Migrations Applied!"
+
+            # --- 3. Menarik image terbaru dan menjalankan/update kontainer ---
             docker-compose pull
-            docker-compose up -d
+            docker-compose up -d --remove-orphans # --remove-orphans bagus untuk membersihkan kontainer lama
+
             echo "Deployment to VPS successful!"
