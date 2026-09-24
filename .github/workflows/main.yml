@@ -49,8 +49,8 @@ jobs:
             # --- 2. Menjalankan migrasi database di dalam kontainer service aplikasi ---
             # Asumsi nama service aplikasi kamu di docker-compose.yml adalah 'modimind-app-container'
             # Dan `npx prisma` sudah tersedia di dalam image kontainer tersebut (karena `prisma generate` saat build)
-            docker-compose run --rm \
-              -e DATABASE_URL="${{ secrets.DATABASE_URL }}" \ # Pass DATABASE_URL langsung ke kontainer ini
+            docker compose run --rm \
+              -e DATABASE_URL="${{ secrets.DATABASE_URL }}" \
               modimind-app-container \
               npx prisma migrate deploy
 

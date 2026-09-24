@@ -1,6 +1,7 @@
 # compiled output
 /dist
 /node_modules
+/
 
 # Logs
 logs
@@ -39,4 +40,7 @@ lerna-debug.log*
 /src/uploads/thumbnail-submateri/*
 
 /.env
+
+# Docker Compose produksi (memuat kredensial DB)
+/docker-compose.yml
 

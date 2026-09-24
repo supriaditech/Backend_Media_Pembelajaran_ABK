@@ -6,7 +6,7 @@
     ENV OPENSSL_CONF=/dev/null
     
     # Install OpenSSL 3.0 dan dependencies penting
-    RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+    RUN apt-get update && apt-get install -y openssl ca-certificates python3 make g++ && rm -rf /var/lib/apt/lists/*
     
     WORKDIR /usr/src/app
     
@@ -32,6 +32,7 @@
     ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-3.0.x
     ENV NODE_ENV=production
     ENV OPENSSL_CONF=/dev/null
+    ENV NODE_PATH=/usr/src/app/dist
     
     # Install runtime dependencies
     RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
